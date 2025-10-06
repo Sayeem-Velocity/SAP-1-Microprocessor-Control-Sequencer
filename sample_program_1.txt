@@ -1,0 +1,16 @@
+LDA 15
+SHT 2    %0010  (0 means right shift)
+STA 11
+LDA 15
+RTE a    %1010  (1 means left rotate)
+STA 12
+HLT
+
+
+
+
+
+
+
+
+10101010
