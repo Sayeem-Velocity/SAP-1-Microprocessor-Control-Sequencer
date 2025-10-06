@@ -1,3 +1,8 @@
 # VS Code Local History
 .history/
 .history
+
+# Assembler output files (auto-generated)
+output
+*.hex
+*.bin
