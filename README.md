@@ -31,7 +31,6 @@ logisim-evolution Sayeem_CS.circ
 # Write your assembly code in input.txt
 # Then run the assembler
 python assembler.py
-
 # The output will be generated in 'output' file
 # Copy the hex output and paste into Logisim RAM component
 ```
@@ -157,6 +156,7 @@ SAP-1-Microprocessor-Control-Sequencer/
 ├── sample_program_1.txt        # Example: Shift and Rotate operations
 ├── sample_program_2.txt        # Example: Jump operation
 ├── final_report.pdf            # Complete technical documentation
+├── Demonstration Video QR.png  # QR code for video demonstration
 ├── README.md                   # This file
 └── .gitignore                  # Git ignore configuration
 ```
