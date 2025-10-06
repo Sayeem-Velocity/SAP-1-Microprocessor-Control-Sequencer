@@ -10,6 +10,34 @@ A fully functional 8-bit microprocessor implementation with advanced bitwise ope
 
 ---
 
+## Quick Start
+
+### Clone and Run
+
+```bash
+# Clone the repository
+git clone https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer.git
+
+# Navigate to project directory
+cd SAP-1-Microprocessor-Control-Sequencer
+
+# Open the circuit in Logisim-Evolution
+logisim-evolution Sayeem_CS.circ
+```
+
+### Using the Assembler
+
+```bash
+# Write your assembly code in input.txt
+# Then run the assembler
+python assembler.py
+
+# The output will be generated in 'output' file
+# Copy the hex output and paste into Logisim RAM component
+```
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
