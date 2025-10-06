@@ -25,6 +25,7 @@ A fully functional 8-bit microprocessor implementation with advanced bitwise ope
 - [Documentation](#documentation)
 - [Hardware and Software Requirements](#hardware-and-software-requirements)
 - [Author](#author)
+- [License](#license)
 
 ---
 
@@ -122,10 +123,15 @@ SAP-1-Microprocessor-Control-Sequencer/
 │
 ├── Sayeem_CS.circ              # Main Logisim circuit file
 ├── assembler.py                # Python assembler (assembly → hex)
+├── assembler.html              # Advanced interactive web assembler
+├── assembler_interface.html    # Standalone web interface
+├── script.py                   # Assembly processing script
 ├── input.txt                   # Assembly code input for assembler
+├── output                      # Compiled output file
 ├── sample_program_1.txt        # Example: Shift and Rotate operations
 ├── sample_program_2.txt        # Example: Jump operation
 ├── final_report.pdf            # Complete technical documentation
+├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
 └── .gitignore                  # Git ignore configuration
 ```
@@ -440,9 +446,18 @@ All major components documented with:
 
 ## Author
 
-**Sayeem Velocity**  
+**S M Shahriar**
+
 Computer Architecture and Digital System Design  
 Enhanced SAP-1 Microprocessor Project
+
+### Connect With Me
+
+- **GitHub**: [Sayeem-Velocity](https://github.com/Sayeem-Velocity)
+- **LinkedIn**: [S M Shahriar](https://www.linkedin.com/in/s-m-shahriar-26s/)
+- **Portfolio Website**: [sm-shahriar.netlify.app](https://sm-shahriar.netlify.app/)
+- **Project Repository**: [SAP-1-Microprocessor-Control-Sequencer](https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer)
+- **Video Demonstration**: [YouTube](https://youtu.be/epArGkpsPSU)
 
 ---
 
@@ -458,6 +473,10 @@ This project builds upon the foundational SAP-1 architecture concept while intro
 
 ---
 
-**Last Updated:** 2025  
+**Last Updated:** October 6, 2025  
 **Version:** 1.0  
 **Status:** Complete and Functional
+
+---
+
+*For issues, questions, or contributions, please open an issue on the [GitHub repository](https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer).*
