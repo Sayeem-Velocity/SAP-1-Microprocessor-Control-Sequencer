@@ -123,15 +123,12 @@ SAP-1-Microprocessor-Control-Sequencer/
 │
 ├── Sayeem_CS.circ              # Main Logisim circuit file
 ├── assembler.py                # Python assembler (assembly → hex)
-├── assembler.html              # Advanced interactive web assembler
-├── assembler_interface.html    # Standalone web interface
 ├── script.py                   # Assembly processing script
 ├── input.txt                   # Assembly code input for assembler
 ├── output                      # Compiled output file
 ├── sample_program_1.txt        # Example: Shift and Rotate operations
 ├── sample_program_2.txt        # Example: Jump operation
 ├── final_report.pdf            # Complete technical documentation
-├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
 └── .gitignore                  # Git ignore configuration
 ```
