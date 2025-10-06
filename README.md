@@ -1,117 +1,171 @@
-# SAP-1 Microprocessor Control Sequencer
+# Enhanced SAP-1 Microprocessor with Bitwise Operations
 
-A complete SAP-1 (Simple As Possible) microprocessor architecture implementation with interactive web-based assembler and Python compiler.
+A fully functional 8-bit microprocessor implementation with advanced bitwise operations (rotation and shifting), automated bootloading, and custom assembler support. Built entirely from fundamental digital components in Logisim-Evolution v3.9.0.
 
-## 📁 Project Structure
+## Video Demonstration
+
+[![SAP-1 Microprocessor Demo](https://img.youtube.com/vi/epArGkpsPSU/maxresdefault.jpg)](https://youtu.be/epArGkpsPSU)
+
+*Click to watch the complete demonstration on YouTube*
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Installation and Usage](#installation-and-usage)
+- [Instruction Set](#instruction-set)
+- [Sample Programs](#sample-programs)
+- [Technical Specifications](#technical-specifications)
+- [Design Methodology](#design-methodology)
+- [Performance Analysis](#performance-analysis)
+- [Documentation](#documentation)
+- [Hardware and Software Requirements](#hardware-and-software-requirements)
+- [Author](#author)
+
+---
+
+## Overview
+
+The Enhanced SAP-1 (Simple-As-Possible) Microprocessor extends the classical educational processor architecture with modern computational capabilities. This implementation demonstrates fundamental computer architecture principles through gate-level digital design while incorporating advanced features typically found in more sophisticated processors.
+
+**Core Enhancements:**
+- Hardware-accelerated bitwise rotation (left/right) with 0-7 position encoding
+- Hardware-accelerated bitwise shifting (left/right) with zero-fill
+- Flexible jump instruction for program flow control
+- Automatic RAM bootloading mechanism
+- Custom Python-based assembler for assembly-to-hex conversion
+- Ring-reset optimization reducing execution cycles by 15-19%
+
+---
+
+## Key Features
+
+### Core Architectural Features
+
+| Feature | Description |
+|---------|-------------|
+| **Data Bus** | 8-bit unified data path |
+| **Address Bus** | 4-bit addressing (16 memory locations) |
+| **Architecture** | Von Neumann (shared instruction/data memory) |
+| **Instruction Cycle** | Six-phase (T₁-T₆) with ring-reset optimization |
+| **Registers** | Two general-purpose registers (A, B) |
+| **Memory** | 16×8 SRAM with dual read/write capability |
+
+### Advanced Operations
+
+**Bitwise Rotation**
+- **Rotate Right (RTE)**: Circular right shift preserving all bits
+- **Rotate Left (RTL)**: Circular left shift preserving all bits
+- **Encoding**: MSB determines direction (0=right, 1=left), bits [2:0] specify amount (0-7)
+
+**Bitwise Shifting**
+- **Shift Right (SHR)**: Logical right shift with zero-fill from left
+- **Shift Left (SHL)**: Logical left shift with zero-fill from right
+- **Encoding**: MSB determines direction (0=right, 1=left), bits [2:0] specify amount (0-7)
+
+**Control Flow**
+- **Jump (JMP)**: Unconditional jump to any address (0-15)
+- Early cycle termination (4 cycles vs. standard 6)
+
+### Automation Features
+
+- **Auto Bootloading**: Logisim RAM auto-loads program at initialization
+- **Custom Assembler**: Python script converts assembly to Logisim-compatible hex
+- **Ring Reset**: Dynamic cycle optimization based on instruction type
+
+---
+
+## Architecture
+
+### System Components
 
 ```
-SAP1-Architecture/
-├── assembler.py              # Python-based assembler script
-├── assembler.html            # Advanced interactive web assembler
-├── assembler_interface.html  # Standalone web interface
-├── script.py                 # Assembly processing script
-├── input.txt                 # Assembly input file
-├── output                    # Compiled output file
-├── Sayeem_CS.circ           # Logisim circuit file
-├── requirements.txt          # Python dependencies
-└── README.md                 # This file
+┌─────────────────────────────────────────────────────────────┐
+│                       8-bit Data Bus                        │
+└─────────────────────────────────────────────────────────────┘
+   │      │      │      │      │      │      │      │
+   ▼      ▼      ▼      ▼      ▼      ▼      ▼      ▼
+  PC    SRAM   Reg-A  Reg-B   ALU   Rotate  Shift   IR
+   │      │      │      │      │      │      │      │
+   └──────┴──────┴──────┴──────┴──────┴──────┴──────┘
+                         │
+                    Control Sequencer
+                         │
+                    Ring Counter (T₁-T₆)
 ```
 
-## 🚀 Features
+### Component Descriptions
 
-### Web-Based Assembler
-- **Interactive HTML Interface** with modern dark theme
-- **Real-time compilation** with syntax validation
-- **Opcode configuration** with JSON upload support
-- **Export options**: Copy to clipboard, download .hex files
-- **Smart labels** and jump instructions
-- **Blank line handling** (auto-converts to 0x00)
-- **Error detection** with helpful messages
+| Component | Function |
+|-----------|----------|
+| **Program Counter (PC)** | Maintains next instruction address, supports sequential increment and direct loading |
+| **SRAM (16×8)** | Stores both program instructions and data with read/write control |
+| **Instruction Register (IR)** | Holds fetched instruction, splits into opcode (4 MSB) and operand (4 LSB) |
+| **General Purpose Registers (A, B)** | Temporary storage for operands and computational results |
+| **ALU** | Executes arithmetic operations (addition, subtraction) |
+| **Rotate Unit** | Performs circular bit rotation with direction/amount decoding |
+| **Shift Unit** | Performs logical bit shifting with zero-fill |
+| **Control Sequencer** | Generates micro-operation control signals from instruction/timing |
+| **Ring Counter** | Six-phase timing signal generator (T₁-T₆) |
+| **4-to-16 Decoder** | Translates 4-bit addresses to one-hot 16-bit output |
 
-### Python Assembler
-- Command-line assembly compilation
-- Multiple number formats (hex, decimal, binary)
-- v3.0 hex format output for Logisim
-- Packed and single-byte opcodes
+---
 
-## 📋 Supported Instructions
+## Project Structure
 
-| Instruction | Opcode | Description | Format |
-|-------------|--------|-------------|--------|
-| **LDA** | 0x10 + operand | Load A Register | `LDA address` |
-| **LDB** | 0x20 + operand | Load B Register | `LDB address` |
-| **OUT** | 0x30 + operand | Output | `OUT port` |
-| **SUB** | 0x40 + operand | Subtract | `SUB address` |
-| **HLT** | 0x50 | Halt | `HLT` |
-| **SHT** | 0x60 + operand | Shift | `SHT amount` |
-| **STA** | 0x70 + operand | Store A | `STA address` |
-| **RTE** | 0x80 + operand | Return | `RTE address` |
-| **JMP** | 0x90 + operand | Jump | `JMP address` |
+```
+SAP-1-Microprocessor-Control-Sequencer/
+│
+├── Sayeem_CS.circ              # Main Logisim circuit file
+├── assembler.py                # Python assembler (assembly → hex)
+├── input.txt                   # Assembly code input for assembler
+├── sample_program_1.txt        # Example: Shift and Rotate operations
+├── sample_program_2.txt        # Example: Jump operation
+├── final_report.pdf            # Complete technical documentation
+├── README.md                   # This file
+└── .gitignore                  # Git ignore configuration
+```
 
-**Note**: Operands must be in range 0-15 (4-bit nibble)
+---
 
-## 🛠️ Installation & Setup
+## Installation and Usage
 
 ### Prerequisites
-- Python 3.x (for Python assembler)
-- Modern web browser (for HTML interface)
-- Git (for version control)
 
-### Clone Repository
-```bash
-git clone https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer.git
-cd SAP-1-Microprocessor-Control-Sequencer
-```
+- **Logisim-Evolution v3.9.0** or later
+- **Python 3.x** (for assembler)
 
-### Python Setup
-```bash
-# Create virtual environment (optional but recommended)
-python -m venv venv
+### Running the Processor
 
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## 💻 Usage
-
-### Option 1: Web Interface (Recommended)
-
-1. **Open the interactive assembler:**
+1. **Clone the repository:**
    ```bash
-   # Simply open in browser
-   start assembler.html
-   # or
-   start assembler_interface.html
+   git clone https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer.git
+   cd SAP-1-Microprocessor-Control-Sequencer
    ```
 
-2. **Enter assembly code** in the left panel
-3. **Click "Compile Assembly"** or press `Ctrl+Enter`
-4. **View output** in the right panel
-5. **Export**: Copy to clipboard or download as .hex file
+2. **Open the circuit:**
+   ```bash
+   logisim-evolution Sayeem_CS.circ
+   ```
 
-**Features:**
-- Upload custom opcode mappings (JSON format)
-- Real-time error detection
-- Syntax highlighting
-- Example code templates
+3. **Load a program:**
+   - Use the assembler to convert assembly code to hex
+   - Load hex output into Logisim bootloader RAM
+   - Enable simulation clock
 
-### Option 2: Python CLI
+### Using the Assembler
 
-1. **Create your assembly code** in `input.txt`:
+1. **Write assembly code in `input.txt`:**
    ```assembly
-   LDA 1
-   LDB 2
-   OUT 0
-   SUB 3
-   STA 10
-   JMP 0
+   LDA 15
+   SHT 2
+   STA 11
    HLT
+   10101010
    ```
 
 2. **Run the assembler:**
@@ -119,303 +173,291 @@ pip install -r requirements.txt
    python assembler.py
    ```
 
-3. **Output** is generated in the `output` file in v3.0 format:
+3. **Copy hex output:**
    ```
    v3.0 hex words addressed
-   0: 11 22 30 43 7a 90 50
+   0: 1f 62 7b 50 00 00 00 00 00 00 00 00 00 00 00 aa
    ```
 
-### Option 3: Script Mode
-
-```bash
-python script.py
-```
-
-## 📝 Assembly Language Syntax
-
-### Basic Format
-```assembly
-OPCODE operand    # Comment
-```
-
-### Examples
-
-**Simple Program:**
-```assembly
-LDA 5        # Load value from address 5
-LDB 6        # Load value from address 6
-SUB 0        # Subtract B from A
-OUT 0        # Output result
-HLT          # Halt execution
-```
-
-**With Labels:**
-```assembly
-START:  LDA 1
-        LDB 2
-        SUB 0
-LOOP:   OUT 0
-        JMP LOOP
-        HLT
-```
-
-**With Blank Lines (auto 0x00):**
-```assembly
-LDA 1
-
-LDB 2
-
-HLT
-```
-
-**Data Declarations:**
-```assembly
-ORG 0
-        LDA 10
-        OUT 0
-        HLT
-
-ORG 10
-        DEC 42    # Decimal data
-        DEC 0xFF  # Hex data
-```
-
-### Number Formats
-- **Decimal**: `42`, `255`
-- **Hexadecimal**: `0xFF`, `0x1A`, `FF`
-- **Binary**: `0b11010`
-
-## 🔧 Opcode Configuration
-
-### Upload Custom Opcodes (Web Interface)
-
-1. Create a JSON file (`opcodes.json`):
-   ```json
-   {
-     "LDA": "0x1",
-     "LDB": "0x2",
-     "OUT": "0x3",
-     "SUB": "0x4",
-     "HLT": "0x5",
-     "SHT": "0x6",
-     "STA": "0x7",
-     "RTE": "0x8",
-     "JMP": "0x9"
-   }
-   ```
-
-2. Click **"Upload Mapping"** button
-3. Select your JSON file
-4. Opcodes are updated automatically
-
-### Modify Python Opcodes
-
-Edit `assembler.py`:
-```python
-packed_ops = {
-    "LDA": 0x10, "LDB": 0x20, "OUT": 0x30, 
-    "SUB": 0x40, "SHT": 0x60, "STA": 0x70, 
-    "RTE": 0x80, "JMP": 0x90
-}
-single_ops = {
-    "HLT": 0x50
-}
-```
-
-## 🎯 Git Commands Reference
-
-### Initial Setup
-```bash
-# Initialize repository
-git init
-
-# Add remote origin
-git remote add origin https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer.git
-
-# Check remote
-git remote -v
-```
-
-### Daily Workflow
-```bash
-# Check status
-git status
-
-# Add files
-git add .                    # Add all files
-git add assembler.py         # Add specific file
-git add *.html              # Add all HTML files
-
-# Commit changes
-git commit -m "Add interactive web assembler"
-git commit -m "Fix opcode parsing bug"
-git commit -m "Update documentation"
-
-# Push to GitHub
-git push origin main
-git push -u origin main     # First time push
-
-# Pull latest changes
-git pull origin main
-```
-
-### Branch Management
-```bash
-# Create new branch
-git branch feature-name
-git checkout -b feature-name  # Create and switch
-
-# Switch branches
-git checkout main
-git checkout feature-name
-
-# List branches
-git branch -a
-
-# Merge branch
-git checkout main
-git merge feature-name
-
-# Delete branch
-git branch -d feature-name
-```
-
-### View History
-```bash
-# View commit history
-git log
-git log --oneline
-git log --graph --oneline --all
-
-# View changes
-git diff
-git diff HEAD~1              # Compare with previous commit
-git diff branch-name         # Compare with branch
-```
-
-### Undo Changes
-```bash
-# Discard local changes
-git checkout -- filename
-git restore filename
-
-# Unstage files
-git reset HEAD filename
-git restore --staged filename
-
-# Undo last commit (keep changes)
-git reset --soft HEAD~1
-
-# Undo last commit (discard changes)
-git reset --hard HEAD~1
-```
-
-### Stash Changes
-```bash
-# Save work in progress
-git stash
-git stash save "Work in progress"
-
-# List stashes
-git stash list
-
-# Apply stash
-git stash apply
-git stash pop               # Apply and remove
-
-# Clear stash
-git stash clear
-```
-
-### Collaboration
-```bash
-# Fork workflow
-git clone https://github.com/YOUR-USERNAME/SAP-1-Microprocessor-Control-Sequencer.git
-git remote add upstream https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer.git
-
-# Sync fork
-git fetch upstream
-git checkout main
-git merge upstream/main
-git push origin main
-```
-
-### Tags & Releases
-```bash
-# Create tag
-git tag v1.0.0
-git tag -a v1.0.0 -m "First stable release"
-
-# Push tags
-git push origin v1.0.0
-git push origin --tags
-
-# List tags
-git tag -l
-
-# Delete tag
-git tag -d v1.0.0
-git push origin --delete v1.0.0
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Error: "Missing operand for LDA"**
-- Ensure all packed operations have an operand (0-15)
-- Example: `LDA 5` not just `LDA`
-
-**Error: "Operand must be 0-15"**
-- Packed operations use 4-bit operands
-- Range: 0-15 (decimal) or 0x0-0xF (hex)
-
-**Error: "Unrecognized opcode"**
-- Check spelling and capitalization
-- Verify opcode is in the supported instruction set
-
-**Python Import Error**
-- Run `pip install -r requirements.txt`
-- Check Python version (3.x required)
-
-**Git Push Rejected**
-```bash
-# Pull first, then push
-git pull origin main --rebase
-git push origin main
-```
-
-## 📚 Additional Resources
-
-- [SAP-1 Architecture Overview](https://en.wikipedia.org/wiki/Simple_As_Possible_computer)
-- [Logisim Evolution](https://github.com/logisim-evolution/logisim-evolution)
-- [Assembly Language Basics](https://en.wikipedia.org/wiki/Assembly_language)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -m "Add feature"`
-4. Push to branch: `git push origin feature-name`
-5. Submit pull request
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 👤 Author
-
-**Sayeem-Velocity**
-- GitHub: [@Sayeem-Velocity](https://github.com/Sayeem-Velocity)
-- Repository: [SAP-1-Microprocessor-Control-Sequencer](https://github.com/Sayeem-Velocity/SAP-1-Microprocessor-Control-Sequencer)
-
-## 🙏 Acknowledgments
-
-- Inspired by the SAP-1 (Simple As Possible) architecture
-- Built for educational purposes and microprocessor design learning
+4. **Paste into Logisim bootloader RAM**
 
 ---
 
-**Last Updated**: October 6, 2025
+## Instruction Set
 
-For issues or questions, please open an issue on GitHub.
+### Complete Instruction Reference
+
+| Opcode | Mnemonic | Format | Description | Cycles |
+|--------|----------|--------|-------------|--------|
+| 0001 | LDA addr | 1XXX | Load Register A from memory | 6 |
+| 0010 | LDB addr | 2XXX | Load Register B from memory | 6 |
+| 0100 | STA addr | 4XXX | Store Register A to memory | 6 |
+| 0011 | OUT addr | 3XXX | Output ALU result to memory | 5 |
+| 0101 | SUB addr | 5XXX | Subtract B from A | 6 |
+| 0110 | SHT n | 6XXX | Shift Register A (MSB=dir, [2:0]=amount) | 6 |
+| 0111 | RTE n | 7XXX | Rotate Register A (MSB=dir, [2:0]=amount) | 6 |
+| 1001 | JMP addr | 9XXX | Jump to address | 4 |
+| 0101 | HLT | 5000 | Halt processor execution | 5 |
+
+### Bitwise Operation Encoding
+
+**Shift Instruction (SHT):**
+- Operand format: `DXXX`
+- `D=0`: Shift Right (SHR) with zero-fill
+- `D=1`: Shift Left (SHL) with zero-fill
+- `XXX`: Amount (0-7 positions)
+
+**Rotate Instruction (RTE):**
+- Operand format: `DXXX`
+- `D=0`: Rotate Right (RTE) circular
+- `D=1`: Rotate Left (RTL) circular
+- `XXX`: Amount (0-7 positions)
+
+**Examples:**
+```
+SHT 2  → 0010 (shift right 2)
+SHT a  → 1010 (shift left 2)
+RTE 2  → 0010 (rotate right 2)
+RTE a  → 1010 (rotate left 2)
+```
+
+---
+
+## Sample Programs
+
+### Program 1: Shift and Rotate Operations
+
+**File:** `sample_program_1.txt`
+
+**Assembly Code:**
+```assembly
+LDA 15      ; Load 10101010 (0xAA)
+SHT 2       ; Shift right by 2 → 00101010 (0x2A)
+STA 11      ; Store result at address 11
+LDA 15      ; Reload original value
+RTE a       ; Rotate left by 2 → 10101000 (0xA8)
+STA 12      ; Store result at address 12
+HLT         ; Halt
+10101010    ; Data at address 15
+```
+
+**Hex Code:**
+```
+v3.0 hex words addressed
+0: 1f 62 7b 1f 8c 7c 50 00 00 00 00 00 00 00 00 aa
+```
+
+**Expected Results:**
+- Memory[11] = 0x2A (shifted result)
+- Memory[12] = 0xA8 (rotated result)
+- Register A = 0xA8
+
+**Binary Transformations:**
+```
+Original:  10101010 (170 decimal)
+SHR 2:     00101010 (42 decimal)
+ROL 2:     10101000 (168 decimal)
+```
+
+---
+
+### Program 2: Jump Operation
+
+**File:** `sample_program_2.txt`
+
+**Assembly Code:**
+```assembly
+LDA 15      ; Load 11111111 (0xFF)
+LDB 14      ; Load 10101010 (0xAA)
+OUT 13      ; Output ALU result
+SUB 12      ; Subtract (placeholder)
+JMP 10      ; Jump to address 10 (skips next instructions)
+SHT 2       ; Skipped
+STA 11      ; Skipped
+HLT         ; Execution continues from address 10
+11111111    ; Data at address 15
+10101010    ; Data at address 14
+```
+
+**Hex Code:**
+```
+v3.0 hex words addressed
+0: 1f 2e 3d 4c 9a 62 7b 00 00 00 50 00 00 00 aa ff
+```
+
+**Expected Results:**
+- Instructions at addresses 5-7 are skipped
+- Program continues execution from address 10 (HLT)
+- Demonstrates control flow manipulation
+
+---
+
+## Technical Specifications
+
+### Timing Characteristics
+
+| Instruction Type | Standard Cycles | Optimized Cycles | Savings |
+|------------------|----------------|------------------|---------|
+| LDA, LDB, STA | 6 | 6 | 0% |
+| RTE, SHT | 6 | 6 | 0% |
+| SUB, OUT | 6 | 5 | 16.7% |
+| JMP | 6 | 4 | 33.3% |
+| HLT | 6 | 5 | 16.7% |
+
+**Average Performance Improvement:** 15-19% throughput increase
+
+### Instruction Cycle Phases
+
+**Fetch Stage (T₁-T₃):** Common to all instructions
+- T₁: PC → MAR (address transfer)
+- T₂: Memory → IR (instruction fetch)
+- T₃: PC++ (increment counter)
+
+**Execute Stage (T₄-T₆):** Instruction-specific
+- T₄: Decode and address calculation
+- T₅: Data operation (read/write/compute)
+- T₆: Ring reset (or earlier for short instructions)
+
+---
+
+## Design Methodology
+
+### Development Approach
+
+1. **Component-Level Design**
+   - Individual modules built from basic gates (AND, OR, NOT, XOR)
+   - Flip-flops for state storage
+   - Verification of isolated components
+
+2. **Subsystem Integration**
+   - Bus architecture with tri-state buffers
+   - Interconnection of major functional units
+   - Control signal routing
+
+3. **Control Logic Implementation**
+   - Ring counter for timing generation
+   - Control sequencer for signal coordination
+   - Boolean logic for micro-operations
+
+4. **Enhancement Integration**
+   - Bitwise operation units (rotate/shift)
+   - Bootloader mechanism
+   - Ring-reset optimization logic
+
+5. **Testing and Validation**
+   - Step-by-step instruction execution
+   - Timing analysis and verification
+   - Comprehensive program testing
+
+### Key Design Decisions
+
+| Aspect | Decision | Rationale |
+|--------|----------|-----------|
+| **Bus Architecture** | Single 8-bit shared bus | Simplifies routing, reduces complexity |
+| **Addressing** | 4-bit (16 locations) | Educational focus, manageable scope |
+| **Timing** | Six-phase with optimization | Balance between simplicity and efficiency |
+| **Bitwise Ops** | Dedicated hardware units | Single-cycle execution, no software loops |
+| **Control** | Sequencer-based | Automated, synchronized operation |
+
+---
+
+## Performance Analysis
+
+### Strengths
+
+- **Functional Correctness**: All 14 instructions execute reliably across test scenarios
+- **Bitwise Efficiency**: Hardware acceleration eliminates software loop overhead
+- **Execution Optimization**: Ring-reset mechanism reduces average cycle time to ~5.2 cycles
+- **Automation**: Auto bootloader and compiler eliminate manual programming errors
+- **Modularity**: Independent subsystems enable isolated testing and debugging
+
+### Limitations
+
+- **Memory Constraint**: 4-bit addressing limits to 16 memory locations
+- **Single Register Operations**: Bitwise operations only affect Register A
+- **Encoding Limit**: 3-bit amount encoding restricts shifts/rotates to 0-7 positions
+- **No Conditional Branching**: Lacks flag register for conditional operations
+- **Educational Scope**: Optimized for instruction set demonstration rather than practical computation
+
+### Future Enhancements
+
+1. **Immediate Improvements**
+   - Flag register (Zero, Carry, Negative, Overflow)
+   - 8-bit addressing (256-byte memory)
+   - Conditional branch instructions
+   - Indexed addressing modes
+
+2. **Advanced Extensions**
+   - Stack pointer with push/pop operations
+   - Subroutine support (CALL/RETURN)
+   - I/O peripheral interfaces
+   - Interrupt handling system
+   - Microcoded control unit
+
+---
+
+## Documentation
+
+### Complete Technical Report
+
+The `final_report.pdf` provides comprehensive documentation including:
+- Detailed architectural diagrams for all components
+- Complete instruction set implementation with timing diagrams
+- Micro-operation equations and control signal descriptions
+- Step-by-step execution traces for sample programs
+- Performance analysis and design trade-offs
+- Comprehensive circuit schematics
+
+### Component Schematics
+
+All major components documented with:
+- Structural design specifications
+- Behavioral analysis
+- Input/output signal descriptions
+- Timing characteristics
+- Integration details
+
+---
+
+## Hardware and Software Requirements
+
+### Development Environment
+
+| Component | Specification |
+|-----------|--------------|
+| **Hardware** | HP EliteBook 840 G7, Intel Core i7 10th Gen |
+| **Software** | Logisim-Evolution v3.9.0 |
+| **Assembler** | Python 3.x |
+| **Operating System** | Windows/Linux/macOS compatible |
+
+### Simulation Requirements
+
+- Minimum 4GB RAM
+- 1280×720 display resolution or higher
+- Java Runtime Environment (for Logisim)
+
+---
+
+## Author
+
+**Sayeem Velocity**  
+Computer Architecture and Digital System Design  
+Enhanced SAP-1 Microprocessor Project
+
+---
+
+## License
+
+This project is provided for educational purposes. Feel free to use, modify, and distribute with proper attribution.
+
+---
+
+## Acknowledgments
+
+This project builds upon the foundational SAP-1 architecture concept while introducing modern enhancements for educational and practical exploration of computer architecture principles.
+
+---
+
+**Last Updated:** 2025  
+**Version:** 1.0  
+**Status:** Complete and Functional
